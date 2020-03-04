@@ -1,0 +1,30 @@
+{
+  "name": "ricwein/tokenizer",
+  "description": "configurable string tokenizer",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Richard Weinhold",
+      "email": "git@ricwein.com"
+    }
+  ],
+  "require": {
+    "php": ">= 7.4.0"
+  },
+  "require-dev": {
+    "overtrue/phplint": "^1.2",
+    "phpunit/phpunit": "^8.0"
+  },
+  "config": {
+    "platform": {
+      "php": "7.4"
+    },
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "ricwein\\Tokenizer\\": "src/"
+    }
+  }
+}
