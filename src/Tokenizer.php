@@ -2,11 +2,12 @@
 
 namespace ricwein\Tokenizer;
 
-use ricwein\Templater\Exceptions\UnexpectedValueException;
 use ricwein\Tokenizer\InputSymbols\Block;
 use ricwein\Tokenizer\InputSymbols\Delimiter;
+use ricwein\Tokenizer\Result\Result;
 use ricwein\Tokenizer\Result\ResultBlock;
 use ricwein\Tokenizer\Result\ResultSymbol;
+use UnexpectedValueException;
 
 class Tokenizer
 {
@@ -58,11 +59,11 @@ class Tokenizer
 
     /**
      * @param string $input
-     * @return ResultBlock[]|ResultSymbol[]
+     * @return Result
      */
-    public function tokenize(string $input): array
+    public function tokenize(string $input): Result
     {
-        return $this->process($input, 0);
+        return new Result($this->process($input, 0));
     }
 
     /**

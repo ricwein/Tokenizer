@@ -5,6 +5,7 @@ namespace units;
 use PHPUnit\Framework\TestCase;
 use ricwein\Tokenizer\InputSymbols\Block;
 use ricwein\Tokenizer\InputSymbols\Delimiter;
+use ricwein\Tokenizer\Result\Result;
 use ricwein\Tokenizer\Result\ResultBlock;
 use ricwein\Tokenizer\Result\ResultSymbol;
 use ricwein\Tokenizer\Tokenizer;
@@ -12,11 +13,6 @@ use ricwein\Tokenizer\Tokenizer;
 class TokenizerTest extends TestCase
 {
     protected Tokenizer $tokenizer;
-
-    private function debugPrintTokenized(string $input)
-    {
-        die(PHP_EOL . PHP_EOL . implode(PHP_EOL . PHP_EOL, $this->tokenizer->tokenize($input)) . PHP_EOL);
-    }
 
     protected function setUp(): void
     {
@@ -38,15 +34,15 @@ class TokenizerTest extends TestCase
     {
         $testString = 'test.123';
         $expected = [new ResultSymbol('test', null), new ResultSymbol('123', new Delimiter('.'))];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = 'test-123';
         $expected = [new ResultSymbol('test-123', null)];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = 'test.123 | lol';
         $expected = [new ResultSymbol('test', null), new ResultSymbol('123', new Delimiter('.')), new ResultSymbol('lol', new Delimiter('|'))];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = 'really.long.test.lol.last';
         $expected = [
@@ -56,7 +52,7 @@ class TokenizerTest extends TestCase
             new ResultSymbol('lol', new Delimiter('.')),
             new ResultSymbol('last', new Delimiter('.'))
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
     }
 
     public function testSimpleBlocks()
@@ -66,7 +62,7 @@ class TokenizerTest extends TestCase
             (new ResultBlock(new Block('[', ']', true), null))
                 ->withSymbols([new ResultSymbol('test', null)])
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '[(test)]';
         $expected = [
@@ -74,7 +70,7 @@ class TokenizerTest extends TestCase
                 ->withSymbols([(new ResultBlock(new Block('(', ')', true), null))
                     ->withSymbols([new ResultSymbol('test', null)])])
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '[("test")]';
         $expected = [
@@ -82,7 +78,7 @@ class TokenizerTest extends TestCase
                 ->withSymbols([(new ResultBlock(new Block('(', ')', true), null))
                     ->withSymbols([new ResultSymbol('"test"', null)])])
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
     }
 
     public function testBlockSymbols()
@@ -92,7 +88,7 @@ class TokenizerTest extends TestCase
             (new ResultBlock(new Block('[', ']', true), null))
                 ->withSymbols([new ResultSymbol('test', null), new ResultSymbol('123', new Delimiter('.'))])
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '[(test).123]';
         $expected = [
@@ -103,7 +99,7 @@ class TokenizerTest extends TestCase
                 ])
         ];
 
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
     }
 
     public function testBlockPrefix()
@@ -112,7 +108,7 @@ class TokenizerTest extends TestCase
         $expected = [
             (new ResultBlock(new Block('(', ')', true), null))->withPrefix('functionCall'),
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = 'really.functionCall().last';
         $expected = [
@@ -120,7 +116,7 @@ class TokenizerTest extends TestCase
             (new ResultBlock(new Block('(', ')', true), new Delimiter('.')))->withPrefix('functionCall'),
             new ResultSymbol('last', new Delimiter('.'))
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
     }
 
     public function testBlockSuffix()
@@ -130,13 +126,13 @@ class TokenizerTest extends TestCase
             new ResultSymbol('really', null),
             (new ResultBlock(new Block('(', ')', true), new Delimiter('.')))->withSuffix('test'),
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '()test';
         $expected = [
             (new ResultBlock(new Block('(', ')', true), null))->withSuffix('test'),
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = 'really.()test.last';
         $expected = [
@@ -145,7 +141,7 @@ class TokenizerTest extends TestCase
             new ResultSymbol('last', new Delimiter('.')),
 
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
     }
 
     public function testNestedBlocks()
@@ -158,7 +154,7 @@ class TokenizerTest extends TestCase
             ]),
             new ResultSymbol('last', new Delimiter('.'))
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
     }
 
@@ -176,7 +172,11 @@ class TokenizerTest extends TestCase
             ]),
             new ResultSymbol('0', new Delimiter('.'))
         ];
-        $this->assertEquals($expected, $this->tokenizer->tokenize($testString));
+
+        die(new Result($expected));
+
+
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
     }
 
 }

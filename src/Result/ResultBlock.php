@@ -5,7 +5,7 @@ namespace ricwein\Tokenizer\Result;
 use ricwein\Tokenizer\InputSymbols\Block;
 use ricwein\Tokenizer\InputSymbols\Delimiter;
 
-class ResultBlock
+class ResultBlock implements ResultSymbolInterface
 {
     private Block $blockSymbol;
     private ?Delimiter $delimiter;
@@ -80,7 +80,7 @@ class ResultBlock
     {
         $symbolString = "";
         foreach ($this->symbols as $key => $symbol) {
-            $symbolString .= sprintf("%s   [%d]: %s", PHP_EOL, $key, $symbol);
+            $symbolString .= sprintf("%s   [%d]: %s%s", PHP_EOL, $key, PHP_EOL, $symbol);
         }
 
         return <<<EOD

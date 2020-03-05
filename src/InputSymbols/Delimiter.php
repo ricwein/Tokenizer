@@ -1,8 +1,6 @@
 <?php
 
-
 namespace ricwein\Tokenizer\InputSymbols;
-
 
 class Delimiter
 {

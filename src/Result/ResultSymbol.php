@@ -4,7 +4,7 @@ namespace ricwein\Tokenizer\Result;
 
 use ricwein\Tokenizer\InputSymbols\Delimiter;
 
-class ResultSymbol
+class ResultSymbol implements ResultSymbolInterface
 {
     private string $symbol;
     private ?Delimiter $delimiter;
