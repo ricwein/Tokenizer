@@ -3,10 +3,10 @@
 namespace ricwein\Tokenizer\Result;
 
 use ArrayAccess;
+use Countable;
 
-class Result implements ArrayAccess
+class Result implements ArrayAccess, Countable
 {
-
     /**
      * @var ResultBlock[]|ResultSymbol[]
      */
@@ -17,6 +17,9 @@ class Result implements ArrayAccess
         $this->results = $results;
     }
 
+    /**
+     * @param ResultSymbolBase $symbol
+     */
     public function add(ResultSymbolBase $symbol)
     {
         $this->results[] = $symbol;
@@ -24,6 +27,7 @@ class Result implements ArrayAccess
 
     /**
      * @inheritDoc
+     * @param int $offset
      */
     public function offsetExists($offset): bool
     {
@@ -32,6 +36,8 @@ class Result implements ArrayAccess
 
     /**
      * @inheritDoc
+     * @param int $offset
+     * @return ResultBlock|ResultSymbol
      */
     public function offsetGet($offset)
     {
@@ -40,6 +46,8 @@ class Result implements ArrayAccess
 
     /**
      * @inheritDoc
+     * @param null|int $offset
+     * @param ResultBlock|ResultSymbol $value
      */
     public function offsetSet($offset, $value)
     {
@@ -50,8 +58,14 @@ class Result implements ArrayAccess
         }
     }
 
+    public function isEmpty(): bool
+    {
+        return count($this->results) <= 0;
+    }
+
     /**
      * @inheritDoc
+     * @param int $offset
      */
     public function offsetUnset($offset)
     {
@@ -61,5 +75,13 @@ class Result implements ArrayAccess
     public function __toString(): string
     {
         return implode('', $this->results);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function count(): int
+    {
+        return count($this->results);
     }
 }
