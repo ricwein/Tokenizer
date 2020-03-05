@@ -4,10 +4,9 @@ namespace ricwein\Tokenizer\Result;
 
 use ricwein\Tokenizer\InputSymbols\Delimiter;
 
-class ResultSymbol implements ResultSymbolInterface
+class ResultSymbol extends ResultSymbolBase
 {
     private string $symbol;
-    private ?Delimiter $delimiter;
 
     /**
      * ResultSymbol constructor.
@@ -29,24 +28,12 @@ class ResultSymbol implements ResultSymbolInterface
     }
 
     /**
-     * @return Delimiter|null
-     */
-    public function delimiter(): ?Delimiter
-    {
-        return $this->delimiter;
-    }
-
-    /**
-     * Helpful for debugging
+     * rebuilds input-string from tokenized symbols
      * @return string
      */
     public function __toString(): string
     {
-        return <<<EOD
-        >>>> SYMBOL <<<<
-        Delimiter: {$this->delimiter}
-        Symbol: {$this->symbol}
-        EOD;
+        return trim(sprintf("%s%s", $this->delimiter ?? '', $this->symbol));
     }
 
 }

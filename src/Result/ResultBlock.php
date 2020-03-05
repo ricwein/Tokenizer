@@ -5,10 +5,9 @@ namespace ricwein\Tokenizer\Result;
 use ricwein\Tokenizer\InputSymbols\Block;
 use ricwein\Tokenizer\InputSymbols\Delimiter;
 
-class ResultBlock implements ResultSymbolInterface
+class ResultBlock extends ResultSymbolBase
 {
     private Block $blockSymbol;
-    private ?Delimiter $delimiter;
 
     /** @var ResultSymbol[]|ResultBlock[] */
     private array $symbols = [];
@@ -73,23 +72,20 @@ class ResultBlock implements ResultSymbolInterface
     }
 
     /**
-     * Helpful for debugging
+     * rebuilds input-string from tokenized symbols
      * @return string
      */
     public function __toString(): string
     {
-        $symbolString = "";
-        foreach ($this->symbols as $key => $symbol) {
-            $symbolString .= sprintf("%s   [%d]: %s%s", PHP_EOL, $key, PHP_EOL, $symbol);
-        }
-
-        return <<<EOD
-        >>>> BLOCK <<<<
-        Block: {$this->block()}
-        Delimiter: {$this->delimiter}
-        Symbols: {$symbolString}
-        Prefix: {$this->prefix}
-        Suffix: {$this->suffix}
-        EOD;
+        return implode('', array_filter([
+            $this->delimiter,
+            $this->prefix,
+            $this->block()->open(),
+            implode('', $this->symbols()),
+            $this->block()->close(),
+            $this->suffix
+        ], function (?string $input): bool {
+            return $input !== null;
+        }));
     }
 }

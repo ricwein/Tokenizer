@@ -40,16 +40,16 @@ class TokenizerTest extends TestCase
         $expected = [new ResultSymbol('test-123', null)];
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
-        $testString = 'test.123 | lol';
-        $expected = [new ResultSymbol('test', null), new ResultSymbol('123', new Delimiter('.')), new ResultSymbol('lol', new Delimiter('|'))];
+        $testString = 'test.123 | something';
+        $expected = [new ResultSymbol('test', null), new ResultSymbol('123', new Delimiter('.')), new ResultSymbol('something', new Delimiter('|'))];
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
-        $testString = 'really.long.test.lol.last';
+        $testString = 'really.long.test.something.last';
         $expected = [
             new ResultSymbol('really', null),
             new ResultSymbol('long', new Delimiter('.')),
             new ResultSymbol('test', new Delimiter('.')),
-            new ResultSymbol('lol', new Delimiter('.')),
+            new ResultSymbol('something', new Delimiter('.')),
             new ResultSymbol('last', new Delimiter('.'))
         ];
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
@@ -59,24 +59,29 @@ class TokenizerTest extends TestCase
     {
         $testString = '[test]';
         $expected = [
-            (new ResultBlock(new Block('[', ']', true), null))
-                ->withSymbols([new ResultSymbol('test', null)])
+            (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
+                new ResultSymbol('test', null)
+            ])
         ];
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '[(test)]';
         $expected = [
-            (new ResultBlock(new Block('[', ']', true), null))
-                ->withSymbols([(new ResultBlock(new Block('(', ')', true), null))
-                    ->withSymbols([new ResultSymbol('test', null)])])
+            (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
+                (new ResultBlock(new Block('(', ')', true), null))->withSymbols([
+                    new ResultSymbol('test', null)
+                ])
+            ])
         ];
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '[("test")]';
         $expected = [
-            (new ResultBlock(new Block('[', ']', true), null))
-                ->withSymbols([(new ResultBlock(new Block('(', ')', true), null))
-                    ->withSymbols([new ResultSymbol('"test"', null)])])
+            (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
+                (new ResultBlock(new Block('(', ')', true), null))->withSymbols([
+                    new ResultSymbol('"test"', null)
+                ])
+            ])
         ];
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
     }
@@ -85,20 +90,30 @@ class TokenizerTest extends TestCase
     {
         $testString = '[test.123]';
         $expected = [
-            (new ResultBlock(new Block('[', ']', true), null))
-                ->withSymbols([new ResultSymbol('test', null), new ResultSymbol('123', new Delimiter('.'))])
+            (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
+                new ResultSymbol('test', null), new ResultSymbol('123', new Delimiter('.'))
+            ])
         ];
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '[(test).123]';
         $expected = [
-            (new ResultBlock(new Block('[', ']', true), null))
-                ->withSymbols([
-                    (new ResultBlock(new Block('(', ')', true), null))->withSymbols([new ResultSymbol('test', null)]),
-                    new ResultSymbol('123', new Delimiter('.'))
-                ])
+            (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
+                (new ResultBlock(new Block('(', ')', true), null))->withSymbols([
+                    new ResultSymbol('test', null)
+                ]),
+                new ResultSymbol('123', new Delimiter('.'))
+            ])
         ];
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
+        $testString = '["(test)".123]';
+        $expected = [
+            (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
+                new ResultSymbol('"(test)"', null),
+                new ResultSymbol('123', new Delimiter('.'))
+            ])
+        ];
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
     }
 
@@ -172,11 +187,31 @@ class TokenizerTest extends TestCase
             ]),
             new ResultSymbol('0', new Delimiter('.'))
         ];
-
-        die(new Result($expected));
-
-
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
+    }
+
+    public function testRestructuring()
+    {
+        $testStrings = [
+            'test',
+            '"test2"',
+            '[(test3)]',
+            '[("test[4]")]',
+            'functionCall()',
+            'really.long.test.something.last',
+            'really.()test.last',
+            'var.functionCall(test).last',
+            'var.functionCall([test, "another"] | first()).0',
+        ];
+
+        foreach ($testStrings as $testString) {
+            $tokenized = $this->tokenizer->tokenize($testString);
+            $reStructuredString = (string)$tokenized;
+            $this->assertSame(str_replace(' ', '', $testString), $reStructuredString);
+
+            $reTokenized = $this->tokenizer->tokenize($reStructuredString);
+            $this->assertEquals($tokenized, $reTokenized);
+        }
     }
 
 }

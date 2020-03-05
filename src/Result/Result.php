@@ -17,7 +17,7 @@ class Result implements ArrayAccess
         $this->results = $results;
     }
 
-    public function add(ResultSymbolInterface $symbol)
+    public function add(ResultSymbolBase $symbol)
     {
         $this->results[] = $symbol;
     }
@@ -60,20 +60,6 @@ class Result implements ArrayAccess
 
     public function __toString(): string
     {
-        $lines = [];
-        foreach ($this->results as $key => $symbol) {
-            $line = PHP_EOL . "START: [{$key}] ====================" . PHP_EOL;
-
-            $symbol = explode(PHP_EOL, (string)$symbol);
-            foreach ($symbol as $symbolLine) {
-                $line .= "    {$symbolLine}" . PHP_EOL;
-            }
-
-            $line .= "END: [{$key}] ====================" . PHP_EOL;
-
-            $lines[] = $line;
-        }
-
-        return implode(PHP_EOL, $lines);
+        return implode('', $this->results);
     }
 }
