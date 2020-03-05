@@ -45,6 +45,20 @@ class Block
     }
 
     /**
+     * Compares open/close tokens for easy block identification
+     * @param string $token
+     * @param string|null $closeToken
+     * @return bool
+     */
+    public function is(string $token, ?string $closeToken): bool
+    {
+        if ($closeToken !== null) {
+            return $this->open()->symbol() === $token && $this->close()->symbol() === $closeToken;
+        }
+        return "{$this->open()}{$this->close()}" === $token;
+    }
+
+    /**
      * @return bool
      */
     public function shouldTokenizeContent(): bool

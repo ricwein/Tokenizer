@@ -54,6 +54,17 @@ class ResultBlock extends ResultSymbolBase
     }
 
     /**
+     * Compares open/close tokens for easy block identification
+     * @param string $token
+     * @param string|null $closeToken
+     * @return bool
+     */
+    public function isBlock(string $token, ?string $closeToken): bool
+    {
+        return $this->block()->is($token, $closeToken);
+    }
+
+    /**
      * @param ResultSymbol[]|ResultBlock[] $symbols
      * @return $this
      */
