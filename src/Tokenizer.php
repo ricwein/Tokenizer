@@ -111,7 +111,7 @@ class Tokenizer
 
                 // we only want to process the current block, if it's the root-block
                 // otherwise the block is handled inside the next sub-process() call
-                if (empty($openBlocks)) {
+                if (count($openBlocks) <= 0) {
                     $blockContent = substr($input, $blockStartOffset, $offset - $blockStartOffset);
 
                     if ($resultBlock->block()->shouldTokenizeContent()) {
@@ -122,12 +122,10 @@ class Tokenizer
                         $result[] = $lastSymbol;
                     } else {
 
-                        // keep the whole block intact,
-                        // just re-pad the content with the blocks open- and close-symbols
-                        $lastSymbol = new ResultSymbol(
-                            sprintf("%s%s%s", $resultBlock->block()->open(), trim($blockContent), $resultBlock->block()->close()),
-                            $lastDelimiter
-                        );
+                        // keep the whole block content-untouched
+                        $lastSymbol = $resultBlock->withSymbols([
+                            new ResultSymbol(trim($blockContent), null)
+                        ]);
                         $result[] = $lastSymbol;
                     }
                 }

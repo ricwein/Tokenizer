@@ -50,7 +50,7 @@ class Block
      * @param string|null $closeToken
      * @return bool
      */
-    public function is(string $token, ?string $closeToken): bool
+    public function is(string $token, ?string $closeToken = null): bool
     {
         if ($closeToken !== null) {
             return $this->open()->symbol() === $token && $this->close()->symbol() === $closeToken;

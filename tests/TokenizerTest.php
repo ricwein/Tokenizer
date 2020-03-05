@@ -75,11 +75,13 @@ class TokenizerTest extends TestCase
         ];
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
 
-        $testString = '[("test")]';
+        $testString = '[("test.123")]';
         $expected = [
             (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
                 (new ResultBlock(new Block('(', ')', true), null))->withSymbols([
-                    new ResultSymbol('"test"', null)
+                    (new ResultBlock(new Block('"', '"', false), null))->withSymbols([
+                        new ResultSymbol('test.123', null)
+                    ])
                 ])
             ])
         ];
@@ -110,7 +112,9 @@ class TokenizerTest extends TestCase
         $testString = '["(test)".123]';
         $expected = [
             (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
-                new ResultSymbol('"(test)"', null),
+                (new ResultBlock(new Block('"', '"', false), null))->withSymbols([
+                    new ResultSymbol('(test)', null),
+                ]),
                 new ResultSymbol('123', new Delimiter('.'))
             ])
         ];
@@ -181,7 +185,9 @@ class TokenizerTest extends TestCase
             (new ResultBlock(new Block('(', ')', true), new Delimiter('.')))->withPrefix('functionCall')->withSymbols([
                 (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
                     new ResultSymbol('test', null),
-                    new ResultSymbol('"another"', new Delimiter(',')),
+                    (new ResultBlock(new Block('"', '"', false), new Delimiter(',')))->withSymbols([
+                        new ResultSymbol('another', null),
+                    ]),
                 ]),
                 (new ResultBlock(new Block('(', ')', true), new Delimiter('|')))->withPrefix('first'),
             ]),

@@ -59,7 +59,7 @@ class ResultBlock extends ResultSymbolBase
      * @param string|null $closeToken
      * @return bool
      */
-    public function isBlock(string $token, ?string $closeToken): bool
+    public function isBlock(string $token, ?string $closeToken = null): bool
     {
         return $this->block()->is($token, $closeToken);
     }
