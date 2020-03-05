@@ -27,6 +27,25 @@ class ResultSymbol extends ResultSymbolBase
         return $this->symbol;
     }
 
+    public function asGuessedType()
+    {
+        switch (true) {
+            case in_array($this->symbol, ['true', 'TRUE'], true):
+                return true;
+            case in_array($this->symbol, ['false', 'FALSE'], true):
+                return false;
+            case in_array($this->symbol, ['null', 'NULL'], true):
+                return null;
+
+            case is_numeric($this->symbol) && strlen($this->symbol) === strlen((string)(int)$this->symbol):
+                return (int)$this->symbol;
+            case is_numeric($this->symbol):
+                return (float)$this->symbol;
+        }
+
+        return $this->symbol;
+    }
+
     /**
      * rebuilds input-string from tokenized symbols
      * @return string
