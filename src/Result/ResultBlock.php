@@ -82,6 +82,16 @@ class ResultBlock extends ResultSymbolBase
         return $this->symbols;
     }
 
+    public function prefix(): ?string
+    {
+        return $this->prefix;
+    }
+
+    public function suffix(): ?string
+    {
+        return $this->suffix;
+    }
+
     /**
      * rebuilds input-string from tokenized symbols
      * @return string
