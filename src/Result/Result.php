@@ -25,6 +25,19 @@ class Result implements ArrayAccess, Countable
         $this->results[] = $symbol;
     }
 
+    public function isEmpty(): bool
+    {
+        return count($this->results) <= 0;
+    }
+
+    /**
+     * @return ResultSymbol[]|ResultBlock[]
+     */
+    public function symbols(): array
+    {
+        return $this->results;
+    }
+
     /**
      * @inheritDoc
      * @param int $offset
@@ -56,11 +69,6 @@ class Result implements ArrayAccess, Countable
         } else {
             $this->results[$offset] = $value;
         }
-    }
-
-    public function isEmpty(): bool
-    {
-        return count($this->results) <= 0;
     }
 
     /**
