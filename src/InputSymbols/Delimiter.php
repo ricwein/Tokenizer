@@ -25,6 +25,11 @@ class Delimiter
         return $this->symbol;
     }
 
+    public function is(string $delimiter): bool
+    {
+        return $this->symbol === $delimiter;
+    }
+
     /**
      * @return int
      */
