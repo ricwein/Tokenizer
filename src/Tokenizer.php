@@ -139,7 +139,10 @@ class Tokenizer
 
                     $resultBlock = new ResultBlock($block, $lastDelimiter);
                     if ($lastOffset < $offset) {
-                        $resultBlock->withPrefix(trim(substr($input, $lastOffset, $offset - $lastOffset)));
+                        $prefix = trim(substr($input, $lastOffset, $offset - $lastOffset));
+                        if (!empty($prefix)) {
+                            $resultBlock->withPrefix($prefix);
+                        }
                     }
 
                     $openBlocks[] = ['block' => $resultBlock, 'startOffset' => ($offset + $block->open()->length())];
@@ -164,7 +167,9 @@ class Tokenizer
 
                         // encounter of symbol directly after an block (no delimiter in between)
                         if ($lastSymbol instanceof ResultBlock) {
-                            $lastSymbol->withSuffix($content);
+                            if (!empty($content)) {
+                                $lastSymbol->withSuffix($content);
+                            }
 
                             // we need to reset the last-symbol, since we processed the
                             // current symbol as an block-suffix

@@ -220,4 +220,23 @@ class TokenizerTest extends TestCase
         }
     }
 
+    public function testDelimiterBlockMatchingPriority()
+    {
+        $testString = "['key_test', ['value']]";
+        $expected = [
+            (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
+                (new ResultBlock(new Block('\'', '\'', false), null))->withSymbols([
+                    new ResultSymbol('key_test', null),
+                ]),
+                (new ResultBlock(new Block('[', ']', true), new Delimiter(',')))->withSymbols([
+                    (new ResultBlock(new Block('\'', '\'', false), null))->withSymbols([
+                        new ResultSymbol('value', null),
+                    ]),
+                ]),
+            ]),
+        ];
+
+        $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
+    }
+
 }

@@ -26,20 +26,20 @@ class ResultBlock extends ResultSymbolBase
     }
 
     /**
-     * @param string $prefix
+     * @param string|null $prefix
      * @return $this
      */
-    public function withPrefix(string $prefix): self
+    public function withPrefix(?string $prefix): self
     {
         $this->prefix = $prefix;
         return $this;
     }
 
     /**
-     * @param string $suffix
+     * @param string|null $suffix
      * @return $this
      */
-    public function withSuffix(string $suffix): self
+    public function withSuffix(?string $suffix): self
     {
         $this->suffix = $suffix;
         return $this;
