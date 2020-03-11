@@ -239,4 +239,22 @@ class TokenizerTest extends TestCase
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
     }
 
+    public function testNestingMaxDepthLimit()
+    {
+        $testString = "['key_test', ['value']]";
+
+        // custom tokenizer with small depth-limit:
+        $delimiter = [new Delimiter(',')];
+        $blocks = [new Block('[', ']', true), new Block('\'', null, false),];
+        $limitedTokenizer = new Tokenizer($delimiter, $blocks, 1);
+
+        $expected = [
+            (new ResultBlock(new Block('[', ']', true), null))->withSymbols([
+                new ResultSymbol("'key_test', ['value']", null),
+            ]),
+        ];
+
+        $this->assertEquals(new Result($expected), $limitedTokenizer->tokenize($testString));
+    }
+
 }

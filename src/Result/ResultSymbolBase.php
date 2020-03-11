@@ -18,4 +18,16 @@ abstract class ResultSymbolBase
         return $this->delimiter;
     }
 
+    /**
+     * @param string|null $delimiter
+     * @return bool
+     */
+    public function isDelimiter(?string $delimiter): bool
+    {
+        if ($this->delimiter === null) {
+            return $delimiter === null;
+        }
+
+        return $this->delimiter->is($delimiter);
+    }
 }

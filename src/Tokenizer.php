@@ -76,8 +76,8 @@ class Tokenizer
     {
         // abort tokenizing after reaching the max block depth
         // just return the input string as the remaining symbol
-        if ($depth > $this->maxDepth) {
-            return [new ResultSymbol(trim($input), null)];
+        if ($depth >= $this->maxDepth) {
+            return [new ResultSymbol($input, null)];
         }
 
         /** @var ResultBlock[]|ResultSymbol[] $result */
@@ -124,7 +124,7 @@ class Tokenizer
 
                         // keep the whole block content-untouched
                         $lastSymbol = $resultBlock->withSymbols([
-                            new ResultSymbol(trim($blockContent), null)
+                            new ResultSymbol($blockContent, null)
                         ]);
                         $result[] = $lastSymbol;
                     }
@@ -139,7 +139,7 @@ class Tokenizer
 
                     $resultBlock = new ResultBlock($block, $lastDelimiter);
                     if ($lastOffset < $offset) {
-                        $prefix = trim(substr($input, $lastOffset, $offset - $lastOffset));
+                        $prefix = ltrim(substr($input, $lastOffset, $offset - $lastOffset));
                         if (!empty($prefix)) {
                             $resultBlock->withPrefix($prefix);
                         }
@@ -163,7 +163,7 @@ class Tokenizer
 
                         // only keep symbol, if it's not already processed before
                         // e.g. if the previous symbol was a block
-                        $content = trim(substr($input, $lastOffset, $offset - $lastOffset));
+                        $content = rtrim(substr($input, $lastOffset, $offset - $lastOffset));
 
                         // encounter of symbol directly after an block (no delimiter in between)
                         if ($lastSymbol instanceof ResultBlock) {
@@ -196,7 +196,7 @@ class Tokenizer
             }
         }
 
-        $remaining = trim($remaining, ' ');
+        $remaining = ltrim($remaining, ' ');
         if (strlen($remaining) > 0) {
             if ($lastSymbol instanceof ResultBlock) {
                 $lastSymbol->withSuffix($remaining);
