@@ -6,15 +6,18 @@ class Delimiter
 {
     private string $symbol;
     private int $length;
+    private bool $isContextSwitching;
 
     /**
      * Delimiter constructor.
      * @param string $symbol
+     * @param bool $isContextSwitching
      */
-    public function __construct(string $symbol)
+    public function __construct(string $symbol, bool $isContextSwitching = false)
     {
         $this->symbol = $symbol;
         $this->length = strlen($symbol);
+        $this->isContextSwitching = $isContextSwitching;
     }
 
     /**
@@ -25,6 +28,10 @@ class Delimiter
         return $this->symbol;
     }
 
+    /**
+     * @param string $delimiter
+     * @return bool
+     */
     public function is(string $delimiter): bool
     {
         return $this->symbol === $delimiter;
@@ -38,6 +45,17 @@ class Delimiter
         return $this->length;
     }
 
+    /**
+     * @return bool
+     */
+    public function isContextSwitching(): bool
+    {
+        return $this->isContextSwitching;
+    }
+
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->symbol();

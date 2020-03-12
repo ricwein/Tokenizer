@@ -30,4 +30,12 @@ abstract class ResultSymbolBase
 
         return $this->delimiter->is($delimiter);
     }
+
+    /**
+     * @return bool
+     */
+    public function isContextSwitching(): bool
+    {
+        return $this->delimiter->isContextSwitching();
+    }
 }
