@@ -19,6 +19,16 @@ abstract class ResultSymbolBase
     }
 
     /**
+     * @param Delimiter|null $delimiter
+     * @return $this
+     */
+    public function setDelimiter(?Delimiter $delimiter): self
+    {
+        $this->delimiter = $delimiter;
+        return $this;
+    }
+
+    /**
      * @param string|null $delimiter
      * @return bool
      */
