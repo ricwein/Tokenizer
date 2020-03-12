@@ -36,6 +36,10 @@ abstract class ResultSymbolBase
      */
     public function isContextSwitching(): bool
     {
+        if ($this->delimiter === null) {
+            return false;
+        }
+
         return $this->delimiter->isContextSwitching();
     }
 }
