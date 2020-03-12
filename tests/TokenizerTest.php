@@ -239,6 +239,21 @@ class TokenizerTest extends TestCase
         $this->assertEquals(new Result($expected), $this->tokenizer->tokenize($testString));
     }
 
+    public function testDelimiterSeparation()
+    {
+        $testString = "true || false";
+
+        $delimiter = [new Delimiter('|'), new Delimiter('||')];
+        $customTokenizer = new Tokenizer($delimiter, []);
+
+        $expected = [
+            new ResultSymbol("true", null),
+            new ResultSymbol("false", new Delimiter('||')),
+        ];
+
+        $this->assertEquals(new Result($expected), $customTokenizer->tokenize($testString));
+    }
+
     public function testNestingMaxDepthLimit()
     {
         $testString = "['key_test', ['value']]";

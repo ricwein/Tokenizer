@@ -41,6 +41,13 @@ class Tokenizer
             $this->delimiterToken[] = $delimiter;
         }
 
+        // sort delimiters by longest first, this assures,
+        // that multichar delimiters can match before a similar singlechar delimiter
+        // is check which could also match
+        usort($this->delimiterToken, function (Delimiter $lhs, Delimiter $rhs): int {
+            return $rhs->length() - $lhs->length();
+        });
+
         foreach ($blockToken as $block) {
             if (in_array($block->open()->symbol(), $takenSymbols, true)) {
                 throw new UnexpectedValueException("Found duplicated symbol in Tokenizer for '{$block->symbolOpen()}' Block open-symbol.", 500);
@@ -55,6 +62,10 @@ class Tokenizer
             }
             $this->blockToken[] = $block;
         }
+
+        usort($this->blockToken, function (Block $lhs, Block $rhs): int {
+            return $rhs->open()->length() - $lhs->open()->length();
+        });
     }
 
     /**
@@ -95,6 +106,10 @@ class Tokenizer
         $remaining = $input;
 
         foreach (str_split($input) as $offset => $char) {
+            // fast forward for match multi-char delimiters
+            if ($lastOffset > $offset) {
+                continue;
+            }
 
             $lastOpenBlock = end($openBlocks);
             if (false !== $lastOpenBlock && $lastOpenBlock['block']->block()->close()->symbol() === substr($input, $offset, $lastOpenBlock['block']->block()->close()->length())) {
