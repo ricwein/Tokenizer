@@ -207,13 +207,14 @@ class TokenizerTest extends TestCase
             'really.long.test.something.last',
             'really.()test.last',
             'var.functionCall(test).last',
-            'var.functionCall([test, "another"] | first()).0',
+            'var.functionCall([test,"another"]|first()).0',
+            "(nested.unExisting??'was nil')??'doh'"
         ];
 
         foreach ($testStrings as $testString) {
             $tokenized = $this->tokenizer->tokenize($testString);
             $reStructuredString = (string)$tokenized;
-            $this->assertSame(str_replace(' ', '', $testString), $reStructuredString);
+            $this->assertSame($testString, $reStructuredString);
 
             $reTokenized = $this->tokenizer->tokenize($reStructuredString);
             $this->assertEquals($tokenized, $reTokenized);
