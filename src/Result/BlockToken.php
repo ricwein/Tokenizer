@@ -5,11 +5,11 @@ namespace ricwein\Tokenizer\Result;
 use ricwein\Tokenizer\InputSymbols\Block;
 use ricwein\Tokenizer\InputSymbols\Delimiter;
 
-class ResultBlock extends ResultSymbolBase
+class BlockToken extends BaseToken
 {
     private Block $blockSymbol;
 
-    /** @var ResultSymbol[]|ResultBlock[] */
+    /** @var Token[]|BlockToken[] */
     private array $symbols = [];
     private ?string $prefix = null;
     private ?string $suffix = null;
@@ -65,7 +65,7 @@ class ResultBlock extends ResultSymbolBase
     }
 
     /**
-     * @param ResultSymbol[]|ResultBlock[] $symbols
+     * @param Token[]|BlockToken[] $symbols
      * @return $this
      */
     public function withSymbols(array $symbols): self
@@ -75,7 +75,7 @@ class ResultBlock extends ResultSymbolBase
     }
 
     /**
-     * @return ResultSymbol[]|ResultBlock[]
+     * @return Token[]|BlockToken[]
      */
     public function symbols(): array
     {
@@ -98,15 +98,13 @@ class ResultBlock extends ResultSymbolBase
      */
     public function __toString(): string
     {
-        return implode('', array_filter([
-            $this->delimiter,
-            $this->prefix,
+        return implode('', [
+            $this->delimiter ?? '',
+            $this->prefix ?? '',
             $this->block()->open(),
             implode('', $this->symbols()),
             $this->block()->close(),
-            $this->suffix
-        ], function (?string $input): bool {
-            return $input !== null;
-        }));
+            $this->suffix ?? ''
+        ]);
     }
 }

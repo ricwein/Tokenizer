@@ -4,9 +4,9 @@ namespace ricwein\Tokenizer;
 
 use ricwein\Tokenizer\InputSymbols\Block;
 use ricwein\Tokenizer\InputSymbols\Delimiter;
-use ricwein\Tokenizer\Result\Result;
-use ricwein\Tokenizer\Result\ResultBlock;
-use ricwein\Tokenizer\Result\ResultSymbol;
+use ricwein\Tokenizer\Result\TokenStream;
+use ricwein\Tokenizer\Result\BlockToken;
+use ricwein\Tokenizer\Result\Token;
 use UnexpectedValueException;
 
 class Tokenizer
@@ -70,28 +70,28 @@ class Tokenizer
 
     /**
      * @param string $input
-     * @return Result
+     * @return TokenStream
      */
-    public function tokenize(string $input): Result
+    public function tokenize(string $input): TokenStream
     {
-        return new Result($this->process($input, 0));
+        return new TokenStream($this->process($input, 0));
     }
 
     /**
      * splits given string into blocks and symbols
      * @param string $input
      * @param int $depth
-     * @return ResultBlock[]|ResultSymbol[]
+     * @return BlockToken[]|Token[]
      */
     private function process(string $input, int $depth): array
     {
         // abort tokenizing after reaching the max block depth
         // just return the input string as the remaining symbol
-        if ($depth >= $this->maxDepth) {
-            return [new ResultSymbol($input, null)];
+        if ($this->maxDepth > 0 && $depth >= $this->maxDepth) {
+            return [new Token($input, null)];
         }
 
-        /** @var ResultBlock[]|ResultSymbol[] $result */
+        /** @var BlockToken[]|Token[] $result */
         $result = [];
 
         /** @var [ResultBlock, int]|null $openBlocks */
@@ -117,7 +117,7 @@ class Tokenizer
                 // remove current block from list of open blocks
                 $lastResultBlock = array_pop($openBlocks);
 
-                /** @var ResultBlock $resultBlock */
+                /** @var BlockToken $resultBlock */
                 $resultBlock = $lastResultBlock['block'];
                 $blockStartOffset = $lastResultBlock['startOffset'];
 
@@ -139,7 +139,7 @@ class Tokenizer
 
                         // keep the whole block content-untouched
                         $lastSymbol = $resultBlock->withSymbols([
-                            new ResultSymbol($blockContent, null)
+                            new Token($blockContent, null)
                         ]);
                         $result[] = $lastSymbol;
                     }
@@ -152,7 +152,7 @@ class Tokenizer
 
                 if ($block->open()->symbol() === substr($input, $offset, $block->open()->length())) {
 
-                    $resultBlock = new ResultBlock($block, $lastDelimiter);
+                    $resultBlock = new BlockToken($block, $lastDelimiter);
                     if ($lastOffset < $offset) {
                         $prefix = ltrim(substr($input, $lastOffset, $offset - $lastOffset));
                         if (!empty($prefix)) {
@@ -181,7 +181,7 @@ class Tokenizer
                         $content = rtrim(substr($input, $lastOffset, $offset - $lastOffset));
 
                         // encounter of symbol directly after an block (no delimiter in between)
-                        if ($lastSymbol instanceof ResultBlock) {
+                        if ($lastSymbol instanceof BlockToken) {
                             if (!empty($content)) {
                                 $lastSymbol->withSuffix($content);
                             }
@@ -190,7 +190,7 @@ class Tokenizer
                             // current symbol as an block-suffix
                             $lastSymbol = null;
                         } else {
-                            $lastSymbol = new ResultSymbol($content, $lastDelimiter);;
+                            $lastSymbol = new Token($content, $lastDelimiter);;
                             $result[] = $lastSymbol;
                         }
 
@@ -213,10 +213,10 @@ class Tokenizer
 
         $remaining = ltrim($remaining, ' ');
         if (strlen($remaining) > 0) {
-            if ($lastSymbol instanceof ResultBlock) {
+            if ($lastSymbol instanceof BlockToken) {
                 $lastSymbol->withSuffix($remaining);
             } else {
-                $result[] = new ResultSymbol($remaining, $lastDelimiter);
+                $result[] = new Token($remaining, $lastDelimiter);
             }
         }
 
