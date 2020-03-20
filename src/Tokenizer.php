@@ -94,7 +94,7 @@ class Tokenizer
         /** @var BlockToken[]|Token[] $result */
         $result = [];
 
-        /** @var [ResultBlock, int]|null $openBlocks */
+        /** @var array|null $openBlocks 'block' => BlockToken, 'startOffset' => int */
         $openBlocks = [];
 
         $lastSymbol = null;
@@ -111,8 +111,13 @@ class Tokenizer
                 continue;
             }
 
-            $lastOpenBlock = end($openBlocks);
-            if (false !== $lastOpenBlock && $lastOpenBlock['block']->block()->close()->symbol() === substr($input, $offset, $lastOpenBlock['block']->block()->close()->length())) {
+            /** @var BlockToken|null $lastOpenBlock */
+            $lastOpenBlock = null;
+            if (false !== $lastOpen = end($openBlocks)) {
+                $lastOpenBlock = $lastOpen['block'];
+            }
+
+            if ($lastOpenBlock !== null && $lastOpenBlock->block()->close()->symbol() === substr($input, $offset, $lastOpenBlock->block()->close()->length())) {
 
                 // remove current block from list of open blocks
                 $lastResultBlock = array_pop($openBlocks);

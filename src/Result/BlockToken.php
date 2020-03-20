@@ -10,7 +10,7 @@ class BlockToken extends BaseToken
     private Block $blockSymbol;
 
     /** @var Token[]|BlockToken[] */
-    private array $symbols = [];
+    private array $tokens = [];
     private ?string $prefix = null;
     private ?string $suffix = null;
 
@@ -65,21 +65,21 @@ class BlockToken extends BaseToken
     }
 
     /**
-     * @param Token[]|BlockToken[] $symbols
+     * @param Token[]|BlockToken[] $tokens
      * @return $this
      */
-    public function withSymbols(array $symbols): self
+    public function withSymbols(array $tokens): self
     {
-        $this->symbols = $symbols;
+        $this->tokens = $tokens;
         return $this;
     }
 
     /**
      * @return Token[]|BlockToken[]
      */
-    public function symbols(): array
+    public function tokens(): array
     {
-        return $this->symbols;
+        return $this->tokens;
     }
 
     public function prefix(): ?string
@@ -102,7 +102,7 @@ class BlockToken extends BaseToken
             $this->delimiter ?? '',
             $this->prefix ?? '',
             $this->block()->open(),
-            implode('', $this->symbols()),
+            implode('', $this->tokens()),
             $this->block()->close(),
             $this->suffix ?? ''
         ]);
