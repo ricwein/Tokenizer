@@ -54,6 +54,18 @@ class BlockToken extends BaseToken
     }
 
     /**
+     * returns re-synthesized block content without:
+     *  - delimiters
+     *  - pre/suffixes
+     *  - open/close block-delimiters
+     * @return string
+     */
+    public function content(): string
+    {
+        return implode('', $this->tokens());
+    }
+
+    /**
      * Compares open/close tokens for easy block identification
      * @param string $token
      * @param string|null $closeToken
@@ -102,7 +114,7 @@ class BlockToken extends BaseToken
             $this->delimiter ?? '',
             $this->prefix ?? '',
             $this->block()->open(),
-            implode('', $this->tokens()),
+            $this->content(),
             $this->block()->close(),
             $this->suffix ?? ''
         ]);
