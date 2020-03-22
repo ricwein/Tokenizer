@@ -175,6 +175,19 @@ class TokenizerTest extends TestCase
         ];
         $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
+        $testString = "'(x'|job.task.cores|')'";
+        $expected = [
+            (new BlockToken(new Block('\'', '\'', false), null))->withSymbols([
+                new Token('(x', null),
+            ]),
+            new Token('job', new Delimiter('|')),
+            new Token('task', new Delimiter('.')),
+            new Token('cores', new Delimiter('.')),
+            (new BlockToken(new Block('\'', '\'', false), new Delimiter('|')))->withSymbols([
+                new Token(')', null),
+            ]),
+        ];
+        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
     public function testIntegration()

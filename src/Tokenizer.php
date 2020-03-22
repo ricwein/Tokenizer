@@ -117,42 +117,50 @@ class Tokenizer
                 $lastOpenBlock = $lastOpen['block'];
             }
 
-            if ($lastOpenBlock !== null && $lastOpenBlock->block()->close()->symbol() === substr($input, $offset, $lastOpenBlock->block()->close()->length())) {
+            if ($lastOpenBlock !== null) {
 
-                // remove current block from list of open blocks
-                $lastResultBlock = array_pop($openBlocks);
+                if ($lastOpenBlock->block()->close()->symbol() === substr($input, $offset, $lastOpenBlock->block()->close()->length())) {
 
-                /** @var BlockToken $resultBlock */
-                $resultBlock = $lastResultBlock['block'];
-                $blockStartOffset = $lastResultBlock['startOffset'];
+                    // remove current block from list of open blocks
+                    $lastResultBlock = array_pop($openBlocks);
 
-                $remaining = substr($input, $offset + $resultBlock->block()->close()->length());
-                $lastOffset = $offset + $resultBlock->block()->close()->length();
+                    /** @var BlockToken $resultBlock */
+                    $resultBlock = $lastResultBlock['block'];
+                    $blockStartOffset = $lastResultBlock['startOffset'];
 
-                // we only want to process the current block, if it's the root-block
-                // otherwise the block is handled inside the next sub-process() call
-                if (count($openBlocks) <= 0) {
-                    $blockContent = substr($input, $blockStartOffset, $offset - $blockStartOffset);
+                    $remaining = substr($input, $offset + $resultBlock->block()->close()->length());
+                    $lastOffset = $offset + $resultBlock->block()->close()->length();
 
-                    if ($resultBlock->block()->shouldTokenizeContent()) {
+                    // we only want to process the current block, if it's the root-block
+                    // otherwise the block is handled inside the next sub-process() call
+                    if (count($openBlocks) <= 0) {
+                        $blockContent = substr($input, $blockStartOffset, $offset - $blockStartOffset);
 
-                        // insert block with sub-symbols as a new node to our result-tree
-                        $blockSymbols = $this->process($blockContent, $depth + 1);
-                        $lastSymbol = $resultBlock->withSymbols($blockSymbols);
-                        $result[] = $lastSymbol;
-                    } else {
+                        if ($resultBlock->block()->shouldTokenizeContent()) {
 
-                        // keep the whole block content-untouched
-                        $lastSymbol = $resultBlock->withSymbols([
-                            new Token($blockContent, null)
-                        ]);
-                        $result[] = $lastSymbol;
+                            // insert block with sub-symbols as a new node to our result-tree
+                            $blockSymbols = $this->process($blockContent, $depth + 1);
+                            $lastSymbol = $resultBlock->withSymbols($blockSymbols);
+                            $result[] = $lastSymbol;
+                        } else {
+
+                            // keep the whole block content-untouched
+                            $lastSymbol = $resultBlock->withSymbols([
+                                new Token($blockContent, null)
+                            ]);
+                            $result[] = $lastSymbol;
+                        }
                     }
+
+                    continue;
                 }
 
-                continue;
+                if (!$lastOpenBlock->block()->shouldTokenizeContent()) {
+                    continue;
+                }
             }
 
+            // scan for block-open token
             foreach ($this->blockToken as $block) {
 
                 if ($block->open()->symbol() === substr($input, $offset, $block->open()->length())) {
