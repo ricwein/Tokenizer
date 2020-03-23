@@ -103,13 +103,17 @@ class Tokenizer
         /** @var Delimiter|null $lastDelimiter */
         $lastDelimiter = null;
 
+        /** @var string $lastChar single char from previous iteration */
+        $lastChar = '';
+
         $lastOffset = 0;
         $remaining = $input;
 
         foreach (str_split($input) as $offset => $char) {
-            if ($char === PHP_EOL) {
+            if ($lastChar === PHP_EOL) {
                 $line += 1;
             }
+            $lastChar = $char;
 
             // fast forward for match multi-char delimiters
             if ($lastOffset > $offset) {

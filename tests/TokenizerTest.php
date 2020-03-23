@@ -295,8 +295,18 @@ class TokenizerTest extends TestCase
                 new Token('line:2', null, 2),
             ])->withSuffix(PHP_EOL . 'end' . PHP_EOL),
         ];
-
         $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+
+        $delimiter = [new Delimiter(PHP_EOL)];
+        $blocks = [];
+        $customTokenizer = new Tokenizer($delimiter, $blocks);
+
+        $expected = [
+            new Token('first.second', null, 1),
+            new Token('(line:2)', new Delimiter(PHP_EOL), 2),
+            new Token('end', new Delimiter(PHP_EOL), 3),
+        ];
+        $this->assertEquals(new TokenStream($expected), $customTokenizer->tokenize($testString));
 
     }
 
