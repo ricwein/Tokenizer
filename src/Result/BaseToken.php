@@ -6,6 +6,7 @@ use ricwein\Tokenizer\InputSymbols\Delimiter;
 
 abstract class BaseToken
 {
+    protected int $line;
     protected ?Delimiter $delimiter;
 
     abstract public function __toString(): string;
@@ -16,6 +17,11 @@ abstract class BaseToken
     public function delimiter(): ?Delimiter
     {
         return $this->delimiter;
+    }
+
+    public function line(): int
+    {
+        return $this->line;
     }
 
     /**

@@ -12,11 +12,13 @@ class Token extends BaseToken
      * ResultSymbol constructor.
      * @param string $token
      * @param Delimiter|null $delimiter
+     * @param int $line
      */
-    public function __construct(string $token, ?Delimiter $delimiter)
+    public function __construct(string $token, ?Delimiter $delimiter, int $line = 1)
     {
         $this->token = $token;
         $this->delimiter = $delimiter;
+        $this->line = $line;
     }
 
     /**

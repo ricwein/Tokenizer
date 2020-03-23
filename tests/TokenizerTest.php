@@ -286,4 +286,18 @@ class TokenizerTest extends TestCase
         $this->assertEquals(new TokenStream($expected), $limitedTokenizer->tokenize($testString));
     }
 
+    public function testLineTracking()
+    {
+        $testString = file_get_contents(__DIR__ . '/test.txt');
+        $expected = [
+            new Token('first', null),
+            (new BlockToken(new Block('(', ')', true), new Delimiter('.'), 2))->withPrefix('second' . PHP_EOL)->withSymbols([
+                new Token('line:2', null, 2),
+            ])->withSuffix(PHP_EOL . 'end' . PHP_EOL),
+        ];
+
+        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+
+    }
+
 }

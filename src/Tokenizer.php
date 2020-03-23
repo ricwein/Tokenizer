@@ -74,16 +74,17 @@ class Tokenizer
      */
     public function tokenize(string $input): TokenStream
     {
-        return new TokenStream($this->process($input, 0));
+        return new TokenStream($this->process($input, 0, 1));
     }
 
     /**
      * splits given string into blocks and symbols
      * @param string $input
      * @param int $depth
+     * @param int $line
      * @return BlockToken[]|Token[]
      */
-    private function process(string $input, int $depth): array
+    private function process(string $input, int $depth, int $line): array
     {
         // abort tokenizing after reaching the max block depth
         // just return the input string as the remaining symbol
@@ -106,6 +107,10 @@ class Tokenizer
         $remaining = $input;
 
         foreach (str_split($input) as $offset => $char) {
+            if ($char === PHP_EOL) {
+                $line += 1;
+            }
+
             // fast forward for match multi-char delimiters
             if ($lastOffset > $offset) {
                 continue;
@@ -139,14 +144,14 @@ class Tokenizer
                         if ($resultBlock->block()->shouldTokenizeContent()) {
 
                             // insert block with sub-symbols as a new node to our result-tree
-                            $blockSymbols = $this->process($blockContent, $depth + 1);
+                            $blockSymbols = $this->process($blockContent, $depth + 1, $line);
                             $lastSymbol = $resultBlock->withSymbols($blockSymbols);
                             $result[] = $lastSymbol;
                         } else {
 
                             // keep the whole block content-untouched
                             $lastSymbol = $resultBlock->withSymbols([
-                                new Token($blockContent, null)
+                                new Token($blockContent, null, $line)
                             ]);
                             $result[] = $lastSymbol;
                         }
@@ -165,7 +170,7 @@ class Tokenizer
 
                 if ($block->open()->symbol() === substr($input, $offset, $block->open()->length())) {
 
-                    $resultBlock = new BlockToken($block, $lastDelimiter);
+                    $resultBlock = new BlockToken($block, $lastDelimiter, $line);
                     if ($lastOffset < $offset) {
                         $prefix = ltrim(substr($input, $lastOffset, $offset - $lastOffset));
                         if (!empty($prefix)) {
@@ -203,7 +208,7 @@ class Tokenizer
                             // current symbol as an block-suffix
                             $lastSymbol = null;
                         } else {
-                            $lastSymbol = new Token($content, $lastDelimiter);;
+                            $lastSymbol = new Token($content, $lastDelimiter, $line);
                             $result[] = $lastSymbol;
                         }
 
@@ -229,7 +234,7 @@ class Tokenizer
             if ($lastSymbol instanceof BlockToken) {
                 $lastSymbol->withSuffix($remaining);
             } else {
-                $result[] = new Token($remaining, $lastDelimiter);
+                $result[] = new Token($remaining, $lastDelimiter, $line);
             }
         }
 

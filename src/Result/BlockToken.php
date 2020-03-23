@@ -18,11 +18,13 @@ class BlockToken extends BaseToken
      * ResultBlock constructor.
      * @param Block $blockSymbol
      * @param Delimiter|null $delimiter
+     * @param int $line
      */
-    public function __construct(Block $blockSymbol, ?Delimiter $delimiter)
+    public function __construct(Block $blockSymbol, ?Delimiter $delimiter, int $line = 1)
     {
         $this->blockSymbol = $blockSymbol;
         $this->delimiter = $delimiter;
+        $this->line = $line;
     }
 
     /**
