@@ -59,9 +59,9 @@ class TokenStream implements ArrayAccess, Countable
         return $this->tokens[$this->currentOffset - 1];
     }
 
-    public function reset(): void
+    public function reset(int $offset = 0): void
     {
-        $this->currentOffset = 0;
+        $this->currentOffset = $offset;
     }
 
     /**
