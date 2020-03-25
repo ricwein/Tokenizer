@@ -8,14 +8,16 @@ class Block
     private Delimiter $symbolClose;
 
     private bool $shouldTokenizeContent;
+    private bool $splitAffixIntoSymbols;
 
     /**
      * Block constructor.
      * @param string $symbolOpen
      * @param string|null $symbolClose
      * @param bool $shouldTokenizeContent
+     * @param bool $splitAffixIntoSymbols
      */
-    public function __construct(string $symbolOpen, ?string $symbolClose, bool $shouldTokenizeContent)
+    public function __construct(string $symbolOpen, ?string $symbolClose, bool $shouldTokenizeContent, bool $splitAffixIntoSymbols = false)
     {
         $this->symbolOpen = new Delimiter($symbolOpen);
 
@@ -26,6 +28,7 @@ class Block
         }
 
         $this->shouldTokenizeContent = $shouldTokenizeContent;
+        $this->splitAffixIntoSymbols = $splitAffixIntoSymbols;
     }
 
     /**
@@ -64,6 +67,14 @@ class Block
     public function shouldTokenizeContent(): bool
     {
         return $this->shouldTokenizeContent;
+    }
+
+    /**
+     * @return bool
+     */
+    public function splitAffixIntoSymbols(): bool
+    {
+        return $this->splitAffixIntoSymbols;
     }
 
     public function __toString()

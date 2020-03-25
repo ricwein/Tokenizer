@@ -20,11 +20,14 @@ class TokenizerTest extends TestCase
 
         $delimiter = [new Delimiter('.'), new Delimiter('|'), new Delimiter(',')];
         $blocks = [
-            new Block('[', ']', true),
-            new Block('(', ')', true),
-            new Block('{', '}', false),
-            new Block('\'', null, false),
-            new Block('"', null, false),
+            new Block('[', ']', true, false),
+            new Block('(', ')', true, false),
+            new Block('{', '}', false, false),
+            new Block('\'', null, false, false),
+            new Block('"', null, false, false),
+
+            new Block('{{', '}}', false, true),
+            new Block('{%', '%}', true, true),
         ];
 
         $this->tokenizer = new Tokenizer($delimiter, $blocks);
@@ -291,7 +294,7 @@ class TokenizerTest extends TestCase
         $testString = file_get_contents(__DIR__ . '/test.txt');
         $expected = [
             new Token('first', null),
-            (new BlockToken(new Block('(', ')', true), new Delimiter('.'), 2))->withPrefix('second' . PHP_EOL)->withSymbols([
+            (new BlockToken(new Block('(', ')', true), new Delimiter('.'), 2))->withPrefix('second')->withSymbols([
                 new Token('line:2', null, 2),
             ])->withSuffix(PHP_EOL . 'end' . PHP_EOL),
         ];
@@ -307,7 +310,33 @@ class TokenizerTest extends TestCase
             new Token('end', new Delimiter(PHP_EOL), 3),
         ];
         $this->assertEquals(new TokenStream($expected), $customTokenizer->tokenize($testString));
+    }
 
+    public function testAffixSplitting()
+    {
+        $testString = "before {{ test }} after";
+        $expected = [
+            new Token('before', null),
+            (new BlockToken(new Block('{{', '}}', false, true), null))->withSymbols([
+                new Token(' test ', null),
+            ]),
+            new Token('after', null),
+        ];
+        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+
+        $testString = "before.one {% test.first %} 'after'";
+        $expected = [
+            new Token('before', null),
+            new Token('one', new Delimiter('.')),
+            (new BlockToken(new Block('{%', '%}', true, true), null))->withSymbols([
+                new Token(' test', null),
+                new Token('first ', new Delimiter('.')),
+            ]),
+            (new BlockToken(new Block('\'', '\'', false), null))->withSymbols([
+                new Token('after', null),
+            ]),
+        ];
+        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
 }

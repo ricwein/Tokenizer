@@ -4,6 +4,7 @@ namespace ricwein\Tokenizer;
 
 use ricwein\Tokenizer\InputSymbols\Block;
 use ricwein\Tokenizer\InputSymbols\Delimiter;
+use ricwein\Tokenizer\Result\BaseToken;
 use ricwein\Tokenizer\Result\TokenStream;
 use ricwein\Tokenizer\Result\BlockToken;
 use ricwein\Tokenizer\Result\Token;
@@ -89,7 +90,7 @@ class Tokenizer
         // abort tokenizing after reaching the max block depth
         // just return the input string as the remaining symbol
         if ($this->maxDepth > 0 && $depth >= $this->maxDepth) {
-            return [new Token($input, null)];
+            return [new Token($input, null, $line)];
         }
 
         /** @var BlockToken[]|Token[] $result */
@@ -98,6 +99,7 @@ class Tokenizer
         /** @var array|null $openBlocks 'block' => BlockToken, 'startOffset' => int */
         $openBlocks = [];
 
+        /** @var BaseToken|null $lastSymbol */
         $lastSymbol = null;
 
         /** @var Delimiter|null $lastDelimiter */
@@ -176,9 +178,18 @@ class Tokenizer
 
                     $resultBlock = new BlockToken($block, $lastDelimiter, $line);
                     if ($lastOffset < $offset) {
-                        $prefix = ltrim(substr($input, $lastOffset, $offset - $lastOffset));
+                        $prefix = trim(substr($input, $lastOffset, $offset - $lastOffset));
                         if (!empty($prefix)) {
-                            $resultBlock->withPrefix($prefix);
+                            if ($block->splitAffixIntoSymbols()) {
+                                $lastSymbol = new Token($prefix, $lastDelimiter, $line);
+
+                                $resultBlock->setDelimiter(null);
+                                $lastDelimiter = null;
+
+                                $result[] = $lastSymbol;
+                            } else {
+                                $resultBlock->withPrefix($prefix);
+                            }
                         }
                     }
 
@@ -204,8 +215,15 @@ class Tokenizer
 
                         // encounter of symbol directly after an block (no delimiter in between)
                         if ($lastSymbol instanceof BlockToken) {
+
                             if (!empty($content)) {
-                                $lastSymbol->withSuffix($content);
+
+                                if ($lastSymbol->block()->splitAffixIntoSymbols()) {
+                                    $result[] = new Token($content, null, $line);
+                                } else {
+                                    $lastSymbol->withSuffix($content);
+                                }
+
                             }
 
                             // we need to reset the last-symbol, since we processed the
@@ -233,15 +251,21 @@ class Tokenizer
             }
         }
 
+        // handle remaining tokens
         $remaining = ltrim($remaining, ' ');
         if (strlen($remaining) > 0) {
             if ($lastSymbol instanceof BlockToken) {
-                $lastSymbol->withSuffix($remaining);
+
+                if ($lastSymbol->block()->splitAffixIntoSymbols()) {
+                    $result[] = new Token(ltrim($remaining), null, $line);
+                } else {
+                    $lastSymbol->withSuffix($remaining);
+                }
+
             } else {
                 $result[] = new Token($remaining, $lastDelimiter, $line);
             }
         }
-
         return $result;
     }
 
