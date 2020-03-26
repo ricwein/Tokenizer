@@ -11,6 +11,8 @@ abstract class BaseToken
 
     abstract public function __toString(): string;
 
+    abstract public function content(): string;
+
     /**
      * @return Delimiter|null
      */

@@ -29,6 +29,11 @@ class Token extends BaseToken
         return $this->token;
     }
 
+    public function content(): string
+    {
+        return $this->token;
+    }
+
     public function asGuessedType()
     {
         switch (true) {
@@ -56,7 +61,7 @@ class Token extends BaseToken
     {
         return implode('', [
             $this->delimiter ?? '',
-            $this->token,
+            $this->content(),
         ]);
     }
 

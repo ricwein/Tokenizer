@@ -33,6 +33,20 @@ class TokenizerTest extends TestCase
         $this->tokenizer = new Tokenizer($delimiter, $blocks);
     }
 
+    public function testLeadingDelimiter()
+    {
+        $testString = '.123';
+        $expected = [new Token('123', new Delimiter('.'))];
+        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+    }
+
+    public function testTrailingDelimiter()
+    {
+        $testString = '123.';
+        $expected = [new Token('123', null)];
+        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+    }
+
     public function testSimpleDelimiter()
     {
         $testString = 'test.123';
