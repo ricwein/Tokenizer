@@ -292,7 +292,7 @@ class TokenizerTest extends TestCase
         // custom tokenizer with small depth-limit:
         $delimiter = [new Delimiter(',')];
         $blocks = [new Block('[', ']', true), new Block('\'', null, false),];
-        $limitedTokenizer = new Tokenizer($delimiter, $blocks, 1);
+        $limitedTokenizer = new Tokenizer($delimiter, $blocks, ['maxDepth' => 1]);
 
         $expected = [
             (new BlockToken(new Block('[', ']', true), null))->withSymbols([

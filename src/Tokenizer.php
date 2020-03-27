@@ -20,18 +20,22 @@ class Tokenizer
     /** @var Block[] */
     private array $blockToken = [];
 
-    private int $maxDepth;
+    // config flags
+    private int $maxDepth = self::MAX_DEPTH;
+    private bool $disableAutoTrim = false;
 
     /**
      * Tokenizer constructor.
      * @param Delimiter[] $delimiterToken
      * @param Block[] $blockToken
-     * @param int $maxDepth
+     * @param array $config
      * @throws UnexpectedValueException
      */
-    public function __construct(array $delimiterToken, array $blockToken, int $maxDepth = self::MAX_DEPTH)
+    public function __construct(array $delimiterToken, array $blockToken, array $config = [])
     {
-        $this->maxDepth = $maxDepth;
+        // read type-safe config entries
+        $this->parseConfig($config);
+
         $takenSymbols = [];
 
         foreach ($delimiterToken as $delimiter) {
@@ -67,6 +71,16 @@ class Tokenizer
         usort($this->blockToken, function (Block $lhs, Block $rhs): int {
             return $rhs->open()->length() - $lhs->open()->length();
         });
+    }
+
+    private function parseConfig(array $config): void
+    {
+        if (array_key_exists('maxDepth', $config) && is_int($config['maxDepth'])) {
+            $this->maxDepth = $config['maxDepth'];
+        }
+        if (array_key_exists('disableAutoTrim', $config) && is_bool($config['disableAutoTrim'])) {
+            $this->disableAutoTrim = $config['disableAutoTrim'];
+        }
     }
 
     /**
@@ -178,7 +192,11 @@ class Tokenizer
 
                     $resultBlock = new BlockToken($block, $lastDelimiter, $line);
                     if ($lastOffset < $offset) {
-                        $prefix = trim(substr($input, $lastOffset, $offset - $lastOffset));
+
+                        $prefix = substr($input, $lastOffset, $offset - $lastOffset);
+                        if (!$this->disableAutoTrim) {
+                            $prefix = trim($prefix);
+                        }
                         if (!empty($prefix)) {
                             if ($block->splitAffixIntoSymbols()) {
                                 $lastSymbol = new Token($prefix, $lastDelimiter, $line);
@@ -211,7 +229,10 @@ class Tokenizer
 
                         // only keep symbol, if it's not already processed before
                         // e.g. if the previous symbol was a block
-                        $content = rtrim(substr($input, $lastOffset, $offset - $lastOffset));
+                        $content = substr($input, $lastOffset, $offset - $lastOffset);
+                        if (!$this->disableAutoTrim) {
+                            $content = rtrim($content);
+                        }
 
                         // encounter of symbol directly after an block (no delimiter in between)
                         if ($lastSymbol instanceof BlockToken) {
@@ -252,12 +273,14 @@ class Tokenizer
         }
 
         // handle remaining tokens
-        $remaining = ltrim($remaining, ' ');
+        if (!$this->disableAutoTrim) {
+            $remaining = ltrim($remaining, ' ');
+        }
         if (strlen($remaining) > 0) {
             if ($lastSymbol instanceof BlockToken) {
 
                 if ($lastSymbol->block()->splitAffixIntoSymbols()) {
-                    $result[] = new Token(ltrim($remaining), null, $line);
+                    $result[] = new Token($remaining, null, $line);
                 } else {
                     $lastSymbol->withSuffix($remaining);
                 }
