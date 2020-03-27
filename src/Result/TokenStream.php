@@ -8,11 +8,15 @@ use Countable;
 class TokenStream implements ArrayAccess, Countable
 {
     /**
-     * @var BlockToken[]|Token[]
+     * @var BaseToken[]
      */
     private array $tokens = [];
     private int $currentOffset = 0;
 
+    /**
+     * TokenStream constructor.
+     * @param BaseToken[] $tokens
+     */
     public function __construct(array $tokens)
     {
         $this->tokens = $tokens;
@@ -32,7 +36,7 @@ class TokenStream implements ArrayAccess, Countable
     }
 
     /**
-     * @return Token[]|BlockToken[]
+     * @return BaseToken[]
      */
     public function tokens(): array
     {
@@ -76,7 +80,7 @@ class TokenStream implements ArrayAccess, Countable
     /**
      * @inheritDoc
      * @param int $offset
-     * @return BlockToken|Token
+     * @return BaseToken
      */
     public function offsetGet($offset)
     {
@@ -86,7 +90,7 @@ class TokenStream implements ArrayAccess, Countable
     /**
      * @inheritDoc
      * @param null|int $offset
-     * @param BlockToken|Token $value
+     * @param BaseToken $value
      */
     public function offsetSet($offset, $value)
     {
