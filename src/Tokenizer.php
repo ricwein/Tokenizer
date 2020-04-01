@@ -85,11 +85,12 @@ class Tokenizer
 
     /**
      * @param string $input
+     * @param int $startLine
      * @return TokenStream
      */
-    public function tokenize(string $input): TokenStream
+    public function tokenize(string $input, int $startLine = 1): TokenStream
     {
-        return new TokenStream($this->process($input, 0, 1));
+        return new TokenStream($this->process($input, 0, $startLine));
     }
 
     /**
