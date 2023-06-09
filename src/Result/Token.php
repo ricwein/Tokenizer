@@ -6,24 +6,11 @@ use ricwein\Tokenizer\InputSymbols\Delimiter;
 
 class Token extends BaseToken
 {
-    private string $token;
-
-    /**
-     * ResultSymbol constructor.
-     * @param string $token
-     * @param Delimiter|null $delimiter
-     * @param int $line
-     */
-    public function __construct(string $token, ?Delimiter $delimiter, int $line = 1)
+    public function __construct(private readonly string $token, ?Delimiter $delimiter, int $line = 1)
     {
-        $this->token = $token;
-        $this->delimiter = $delimiter;
-        $this->line = $line;
+        parent::__construct($delimiter, $line);
     }
 
-    /**
-     * @return string
-     */
     public function token(): string
     {
         return $this->token;
@@ -34,33 +21,26 @@ class Token extends BaseToken
         return $this->token;
     }
 
-    public function asGuessedType()
+    public function asGuessedType(): float|bool|int|string|null
     {
-        switch (true) {
-            case in_array($this->token, ['true', 'TRUE'], true):
-                return true;
-            case in_array($this->token, ['false', 'FALSE'], true):
-                return false;
-            case in_array($this->token, ['null', 'NULL'], true):
-                return null;
+        return match (true) {
+            in_array($this->token, ['true', 'TRUE'], true) => true,
+            in_array($this->token, ['false', 'FALSE'], true) => false,
+            in_array($this->token, ['null', 'NULL'], true) => null,
+            is_numeric($this->token) && strlen($this->token) === strlen((string)(int)$this->token) => (int)$this->token,
+            is_numeric($this->token) => (float)$this->token,
+            default => $this->token,
+        };
 
-            case is_numeric($this->token) && strlen($this->token) === strlen((string)(int)$this->token):
-                return (int)$this->token;
-            case is_numeric($this->token):
-                return (float)$this->token;
-        }
-
-        return $this->token;
     }
 
     /**
      * rebuilds input-string from tokenized symbols
-     * @return string
      */
     public function __toString(): string
     {
         return implode('', [
-            $this->delimiter ?? '',
+            (string)($this->delimiter ?? ''),
             $this->content(),
         ]);
     }

@@ -10,21 +10,23 @@
     }
   ],
   "require": {
-    "php": ">= 7.4.0"
+    "php": ">= 8.1.0"
   },
   "require-dev": {
-    "overtrue/phplint": "^1.2",
-    "phpunit/phpunit": "^8.0"
+    "overtrue/phplint": "^9.0",
+    "phpunit/phpunit": "^10.0"
   },
   "config": {
-    "platform": {
-      "php": "7.4"
-    },
     "sort-packages": true
   },
   "autoload": {
     "psr-4": {
       "ricwein\\Tokenizer\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ricwein\\Tokenizer\\Tests\\": "tests/"
     }
   }
 }

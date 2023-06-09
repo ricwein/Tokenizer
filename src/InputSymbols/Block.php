@@ -7,17 +7,12 @@ class Block
     private Delimiter $symbolOpen;
     private Delimiter $symbolClose;
 
-    private bool $shouldTokenizeContent;
-    private bool $splitAffixIntoSymbols;
-
-    /**
-     * Block constructor.
-     * @param string $symbolOpen
-     * @param string|null $symbolClose
-     * @param bool $shouldTokenizeContent
-     * @param bool $splitAffixIntoSymbols
-     */
-    public function __construct(string $symbolOpen, ?string $symbolClose, bool $shouldTokenizeContent, bool $splitAffixIntoSymbols = false)
+    public function __construct(
+        string                $symbolOpen,
+        ?string               $symbolClose,
+        private readonly bool $shouldTokenizeContent,
+        private readonly bool $splitAffixIntoSymbols = false
+    )
     {
         $this->symbolOpen = new Delimiter($symbolOpen);
 
@@ -27,21 +22,13 @@ class Block
             $this->symbolClose = $this->symbolOpen;
         }
 
-        $this->shouldTokenizeContent = $shouldTokenizeContent;
-        $this->splitAffixIntoSymbols = $splitAffixIntoSymbols;
     }
 
-    /**
-     * @return Delimiter
-     */
     public function open(): Delimiter
     {
         return $this->symbolOpen;
     }
 
-    /**
-     * @return Delimiter
-     */
     public function close(): Delimiter
     {
         return $this->symbolClose;
@@ -49,9 +36,6 @@ class Block
 
     /**
      * Compares open/close tokens for easy block identification
-     * @param string $token
-     * @param string|null $closeToken
-     * @return bool
      */
     public function is(string $token, ?string $closeToken = null): bool
     {
@@ -61,17 +45,11 @@ class Block
         return "{$this->open()}{$this->close()}" === $token;
     }
 
-    /**
-     * @return bool
-     */
     public function shouldTokenizeContent(): bool
     {
         return $this->shouldTokenizeContent;
     }
 
-    /**
-     * @return bool
-     */
     public function splitAffixIntoSymbols(): bool
     {
         return $this->splitAffixIntoSymbols;

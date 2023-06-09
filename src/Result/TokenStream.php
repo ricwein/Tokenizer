@@ -7,27 +7,19 @@ use Countable;
 
 class TokenStream implements ArrayAccess, Countable
 {
-    /**
-     * @var BaseToken[]
-     */
-    private array $tokens = [];
     private int $currentOffset = 0;
 
     /**
-     * TokenStream constructor.
      * @param BaseToken[] $tokens
      */
-    public function __construct(array $tokens)
+    public function __construct(private array $tokens)
     {
-        $this->tokens = $tokens;
     }
 
-    /**
-     * @param BaseToken $token
-     */
-    public function add(BaseToken $token)
+    public function add(BaseToken $token): self
     {
         $this->tokens[] = $token;
+        return $this;
     }
 
     public function isEmpty(): bool
@@ -50,17 +42,13 @@ class TokenStream implements ArrayAccess, Countable
         }
 
         $token = $this->tokens[$this->currentOffset];
-        $this->currentOffset += 1;
+        ++$this->currentOffset;
         return $token;
     }
 
     public function prev(): ?BaseToken
     {
-        if (!isset($this->tokens[$this->currentOffset - 1])) {
-            return null;
-        }
-
-        return $this->tokens[$this->currentOffset - 1];
+        return $this->tokens[$this->currentOffset - 1] ?? null;
     }
 
     public function reset(int $offset = 0): void
@@ -72,7 +60,7 @@ class TokenStream implements ArrayAccess, Countable
      * @inheritDoc
      * @param int $offset
      */
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->tokens[$offset]);
     }
@@ -80,11 +68,10 @@ class TokenStream implements ArrayAccess, Countable
     /**
      * @inheritDoc
      * @param int $offset
-     * @return BaseToken
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?BaseToken
     {
-        return isset($this->tokens[$offset]) ? $this->tokens[$offset] : null;
+        return $this->tokens[$offset] ?? null;
     }
 
     /**
@@ -92,7 +79,7 @@ class TokenStream implements ArrayAccess, Countable
      * @param null|int $offset
      * @param BaseToken $value
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if ($offset !== null) {
             $this->tokens[] = $value;
@@ -105,7 +92,7 @@ class TokenStream implements ArrayAccess, Countable
      * @inheritDoc
      * @param int $offset
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->tokens[$offset]);
     }

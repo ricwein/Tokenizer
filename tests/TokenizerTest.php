@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace units;
+namespace ricwein\Tokenizer\Tests;
 
 use PHPUnit\Framework\TestCase;
+use ricwein\Tokenizer\Config;
 use ricwein\Tokenizer\InputSymbols\Block;
 use ricwein\Tokenizer\InputSymbols\Delimiter;
 use ricwein\Tokenizer\Result\TokenStream;
@@ -33,33 +34,33 @@ class TokenizerTest extends TestCase
         $this->tokenizer = new Tokenizer($delimiter, $blocks);
     }
 
-    public function testLeadingDelimiter()
+    public function testLeadingDelimiter(): void
     {
         $testString = '.123';
         $expected = [new Token('123', new Delimiter('.'))];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
-    public function testTrailingDelimiter()
+    public function testTrailingDelimiter(): void
     {
         $testString = '123.';
         $expected = [new Token('123', null)];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
-    public function testSimpleDelimiter()
+    public function testSimpleDelimiter(): void
     {
         $testString = 'test.123';
         $expected = [new Token('test', null), new Token('123', new Delimiter('.'))];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = 'test-123';
         $expected = [new Token('test-123', null)];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = 'test.123 | something';
         $expected = [new Token('test', null), new Token('123', new Delimiter('.')), new Token('something', new Delimiter('|'))];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = 'really.long.test.something.last';
         $expected = [
@@ -69,10 +70,10 @@ class TokenizerTest extends TestCase
             new Token('something', new Delimiter('.')),
             new Token('last', new Delimiter('.'))
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
-    public function testSimpleBlocks()
+    public function testSimpleBlocks(): void
     {
         $testString = '[test]';
         $expected = [
@@ -80,7 +81,7 @@ class TokenizerTest extends TestCase
                 new Token('test', null)
             ])
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '[(test)]';
         $expected = [
@@ -90,7 +91,7 @@ class TokenizerTest extends TestCase
                 ])
             ])
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '[("test.123")]';
         $expected = [
@@ -102,10 +103,10 @@ class TokenizerTest extends TestCase
                 ])
             ])
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
-    public function testBlockSymbols()
+    public function testBlockSymbols(): void
     {
         $testString = '[test.123]';
         $expected = [
@@ -113,7 +114,7 @@ class TokenizerTest extends TestCase
                 new Token('test', null), new Token('123', new Delimiter('.'))
             ])
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '[(test).123]';
         $expected = [
@@ -124,7 +125,7 @@ class TokenizerTest extends TestCase
                 new Token('123', new Delimiter('.'))
             ])
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '["(test)".123]';
         $expected = [
@@ -135,16 +136,16 @@ class TokenizerTest extends TestCase
                 new Token('123', new Delimiter('.'))
             ])
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
-    public function testBlockPrefix()
+    public function testBlockPrefix(): void
     {
         $testString = 'functionCall()';
         $expected = [
             (new BlockToken(new Block('(', ')', true), null))->withPrefix('functionCall'),
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = 'really.functionCall().last';
         $expected = [
@@ -152,23 +153,23 @@ class TokenizerTest extends TestCase
             (new BlockToken(new Block('(', ')', true), new Delimiter('.')))->withPrefix('functionCall'),
             new Token('last', new Delimiter('.'))
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
-    public function testBlockSuffix()
+    public function testBlockSuffix(): void
     {
         $testString = 'really.()test';
         $expected = [
             new Token('really', null),
             (new BlockToken(new Block('(', ')', true), new Delimiter('.')))->withSuffix('test'),
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = '()test';
         $expected = [
             (new BlockToken(new Block('(', ')', true), null))->withSuffix('test'),
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = 'really.()test.last';
         $expected = [
@@ -177,10 +178,10 @@ class TokenizerTest extends TestCase
             new Token('last', new Delimiter('.')),
 
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
-    public function testNestedBlocks()
+    public function testNestedBlocks(): void
     {
         $testString = 'var.functionCall(test).last';
         $expected = [
@@ -190,7 +191,7 @@ class TokenizerTest extends TestCase
             ]),
             new Token('last', new Delimiter('.'))
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = "'(x'|job.task.cores|')'";
         $expected = [
@@ -204,10 +205,10 @@ class TokenizerTest extends TestCase
                 new Token(')', null),
             ]),
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
-    public function testIntegration()
+    public function testIntegration(): void
     {
         $testString = 'var.functionCall([test, "another"] | first()).0';
         $expected = [
@@ -223,10 +224,10 @@ class TokenizerTest extends TestCase
             ]),
             new Token('0', new Delimiter('.'))
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
-    public function testRestructuring()
+    public function testRestructuring(): void
     {
         $testStrings = [
             'test',
@@ -244,14 +245,14 @@ class TokenizerTest extends TestCase
         foreach ($testStrings as $testString) {
             $tokenized = $this->tokenizer->tokenize($testString);
             $reStructuredString = (string)$tokenized;
-            $this->assertSame($testString, $reStructuredString);
+            self::assertSame($testString, $reStructuredString);
 
             $reTokenized = $this->tokenizer->tokenize($reStructuredString);
-            $this->assertEquals($tokenized, $reTokenized);
+            self::assertEquals($tokenized, $reTokenized);
         }
     }
 
-    public function testDelimiterBlockMatchingPriority()
+    public function testDelimiterBlockMatchingPriority(): void
     {
         $testString = "['key_test', ['value']]";
         $expected = [
@@ -267,10 +268,10 @@ class TokenizerTest extends TestCase
             ]),
         ];
 
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
-    public function testDelimiterSeparation()
+    public function testDelimiterSeparation(): void
     {
         $testString = "true || false";
 
@@ -282,17 +283,17 @@ class TokenizerTest extends TestCase
             new Token("false", new Delimiter('||')),
         ];
 
-        $this->assertEquals(new TokenStream($expected), $customTokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $customTokenizer->tokenize($testString));
     }
 
-    public function testNestingMaxDepthLimit()
+    public function testNestingMaxDepthLimit(): void
     {
         $testString = "['key_test', ['value']]";
 
         // custom tokenizer with small depth-limit:
         $delimiter = [new Delimiter(',')];
         $blocks = [new Block('[', ']', true), new Block('\'', null, false),];
-        $limitedTokenizer = new Tokenizer($delimiter, $blocks, ['maxDepth' => 1]);
+        $limitedTokenizer = new Tokenizer($delimiter, $blocks, new Config(maxDepth: 1));
 
         $expected = [
             (new BlockToken(new Block('[', ']', true), null))->withSymbols([
@@ -300,10 +301,10 @@ class TokenizerTest extends TestCase
             ]),
         ];
 
-        $this->assertEquals(new TokenStream($expected), $limitedTokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $limitedTokenizer->tokenize($testString));
     }
 
-    public function testLineTracking()
+    public function testLineTracking(): void
     {
         $testString = file_get_contents(__DIR__ . '/test.txt');
         $expected = [
@@ -312,7 +313,7 @@ class TokenizerTest extends TestCase
                 new Token('line:2', null, 2),
             ])->withSuffix(PHP_EOL . 'end' . PHP_EOL),
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $delimiter = [new Delimiter(PHP_EOL)];
         $blocks = [];
@@ -323,10 +324,10 @@ class TokenizerTest extends TestCase
             new Token('(line:2)', new Delimiter(PHP_EOL), 2),
             new Token('end', new Delimiter(PHP_EOL), 3),
         ];
-        $this->assertEquals(new TokenStream($expected), $customTokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $customTokenizer->tokenize($testString));
     }
 
-    public function testAffixSplitting()
+    public function testAffixSplitting(): void
     {
         $testString = "before {{ test }} after";
         $expected = [
@@ -336,7 +337,7 @@ class TokenizerTest extends TestCase
             ]),
             new Token('after', null),
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
 
         $testString = "before.one {% test.first %} 'after'";
         $expected = [
@@ -350,7 +351,7 @@ class TokenizerTest extends TestCase
                 new Token('after', null),
             ]),
         ];
-        $this->assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
+        self::assertEquals(new TokenStream($expected), $this->tokenizer->tokenize($testString));
     }
 
 }

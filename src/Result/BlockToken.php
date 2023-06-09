@@ -7,49 +7,29 @@ use ricwein\Tokenizer\InputSymbols\Delimiter;
 
 class BlockToken extends BaseToken
 {
-    private Block $blockSymbol;
-
     /** @var Token[]|BlockToken[] */
     private array $tokens = [];
+
     private ?string $prefix = null;
     private ?string $suffix = null;
 
-    /**
-     * ResultBlock constructor.
-     * @param Block $blockSymbol
-     * @param Delimiter|null $delimiter
-     * @param int $line
-     */
-    public function __construct(Block $blockSymbol, ?Delimiter $delimiter, int $line = 1)
+    public function __construct(private readonly Block $blockSymbol, ?Delimiter $delimiter, int $line = 1)
     {
-        $this->blockSymbol = $blockSymbol;
-        $this->delimiter = $delimiter;
-        $this->line = $line;
+        parent::__construct($delimiter, $line);
     }
 
-    /**
-     * @param string|null $prefix
-     * @return $this
-     */
     public function withPrefix(?string $prefix): self
     {
         $this->prefix = $prefix;
         return $this;
     }
 
-    /**
-     * @param string|null $suffix
-     * @return $this
-     */
     public function withSuffix(?string $suffix): self
     {
         $this->suffix = $suffix;
         return $this;
     }
 
-    /**
-     * @return Block
-     */
     public function block(): Block
     {
         return $this->blockSymbol;
@@ -60,7 +40,6 @@ class BlockToken extends BaseToken
      *  - delimiters
      *  - pre/suffixes
      *  - open/close block-delimiters
-     * @return string
      */
     public function content(): string
     {
@@ -69,9 +48,6 @@ class BlockToken extends BaseToken
 
     /**
      * Compares open/close tokens for easy block identification
-     * @param string $token
-     * @param string|null $closeToken
-     * @return bool
      */
     public function isBlock(string $token, ?string $closeToken = null): bool
     {
@@ -80,7 +56,6 @@ class BlockToken extends BaseToken
 
     /**
      * @param Token[]|BlockToken[] $tokens
-     * @return $this
      */
     public function withSymbols(array $tokens): self
     {
@@ -108,12 +83,11 @@ class BlockToken extends BaseToken
 
     /**
      * rebuilds input-string from tokenized symbols
-     * @return string
      */
     public function __toString(): string
     {
         return implode('', [
-            $this->delimiter ?? '',
+            (string)($this->delimiter ?? ''),
             $this->prefix ?? '',
             $this->block()->open(),
             $this->content(),
