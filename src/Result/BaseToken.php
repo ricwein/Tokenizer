@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ricwein\Tokenizer\Result;
 
 use ricwein\Tokenizer\InputSymbols\Delimiter;

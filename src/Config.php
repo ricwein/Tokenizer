@@ -13,8 +13,9 @@ class Config
     protected const MAX_DEPTH = 128;
 
     public function __construct(
-        public readonly int  $maxDepth = self::MAX_DEPTH,
-        public readonly bool $disableAutoTrim = false,
+        public readonly int         $maxDepth = self::MAX_DEPTH,
+        public readonly bool        $disableAutoTrim = false,
+        public readonly null|string $escapeSymbol = null,
     )
     {
     }

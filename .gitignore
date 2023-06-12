@@ -1,6 +1,7 @@
 /.idea
 /composer.lock
 /.phpunit.result.cache
+/.phpunit.cache
 /.phplint.cache
 /phpunit.xml.bak
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ricwein\Tokenizer\InputSymbols;
 
 class Block
@@ -8,20 +10,20 @@ class Block
     private Delimiter $symbolClose;
 
     public function __construct(
-        string                $symbolOpen,
-        ?string               $symbolClose,
-        private readonly bool $shouldTokenizeContent,
-        private readonly bool $splitAffixIntoSymbols = false
+        string                $symbol,
+        ?string               $symbolClose = null,
+        private readonly bool $shouldTokenizeContent = true,
+        private readonly bool $splitAffixIntoSymbols = false,
+        null|string           $escapeSymbol = null
     )
     {
-        $this->symbolOpen = new Delimiter($symbolOpen);
+        $this->symbolOpen = new Delimiter($symbol, escapeSymbol: $escapeSymbol);
 
         if ($symbolClose !== null) {
-            $this->symbolClose = new Delimiter($symbolClose);
+            $this->symbolClose = new Delimiter($symbolClose, escapeSymbol: $escapeSymbol);
         } else {
             $this->symbolClose = $this->symbolOpen;
         }
-
     }
 
     public function open(): Delimiter
